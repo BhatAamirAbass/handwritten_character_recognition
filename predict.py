@@ -15,16 +15,21 @@ class CharacterPredictor:
         self.model = tf.keras.models.load_model(model_path)
 
     
-    def predict(self, raw_emnist_image):
-        """Predict a raw 28x28 EMNIST-oriented grayscale image."""
+   def predict_canvas(self, canvas_image):
+        """Predict an already-upright 28x28 canvas image."""
 
-        # Preprocess the input image
-        batch = preprocess_single_emnist_image(raw_emnist_image)
+        image = np.asarray(canvas_image)
 
-        # Direct model inference instead of model.predict()
-        scores = self.model(batch, training=False).numpy()[0]
+        if image.shape != (28, 28):
+            raise ValueError(
+                f"Expected (28, 28) image, received {image.shape}"
+            )
 
-        # Find the three highest confidence classes
+        # Do NOT transpose: canvas images are already upright.
+        batch = image.astype(np.float32) / 255.0
+        batch = np.expand_dims(batch, axis=(0, -1))
+
+        scores = self.model.predict(batch, verbose=0)[0]
         top_indices = np.argsort(scores)[-3:][::-1]
         best = int(top_indices[0])
 
@@ -40,4 +45,3 @@ class CharacterPredictor:
                 for index in top_indices
             ],
         }
-
