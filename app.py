@@ -43,66 +43,66 @@ def index():
     return render_template("index.html")
 
 
-# @app.route("/predict", methods=["POST"])
-# def predict():
-#     payload = request.get_json(silent=True) or {}
-#     data_url = payload.get("image", "")
+@app.route("/predict", methods=["POST"])
+def predict():
+    payload = request.get_json(silent=True) or {}
+    data_url = payload.get("image", "")
 
-#     if not data_url.startswith("data:image/") or "," not in data_url:
-#         return jsonify({"error": "A valid canvas image is required."}), 400
+    if not data_url.startswith("data:image/") or "," not in data_url:
+        return jsonify({"error": "A valid canvas image is required."}), 400
 
-#     try:
-#         _, encoded = data_url.split(",", 1)
-#         image_bytes = base64.b64decode(encoded, validate=True)
-#         raw_image = preprocess_canvas_image(image_bytes)
-#         result = predictor.predict(raw_image)
-#         return jsonify(result)
-#     except ValueError as error:
-#         return jsonify({"error": str(error)}), 400
-#     except Exception:
-#         app.logger.exception("Prediction failed")
-#         return jsonify({"error": "Prediction failed. Check the server log."}), 500
+    try:
+        _, encoded = data_url.split(",", 1)
+        image_bytes = base64.b64decode(encoded, validate=True)
+        raw_image = preprocess_canvas_image(image_bytes)
+        result = predictor.predict_canvas(raw_image)
+        return jsonify(result)
+    except ValueError as error:
+        return jsonify({"error": str(error)}), 400
+    except Exception:
+        app.logger.exception("Prediction failed")
+        return jsonify({"error": "Prediction failed. Check the server log."}), 500
 
     
 
 
 
 
-@app.route("/predict", methods=["POST"])
-def predict():
-    app.logger.info("STEP 1: Prediction request received")
+# @app.route("/predict", methods=["POST"])
+# def predict():
+#     app.logger.info("STEP 1: Prediction request received")
 
-    payload = request.get_json(silent=True) or {}
-    data_url = payload.get("image", "")
+#     payload = request.get_json(silent=True) or {}
+#     data_url = payload.get("image", "")
 
-    if not data_url.startswith("data:image/") or "," not in data_url:
-        app.logger.warning("Invalid image payload")
-        return jsonify({"error": "A valid canvas image is required."}), 400
+#     if not data_url.startswith("data:image/") or "," not in data_url:
+#         app.logger.warning("Invalid image payload")
+#         return jsonify({"error": "A valid canvas image is required."}), 400
 
-    try:
-        _, encoded = data_url.split(",", 1)
-        image_bytes = base64.b64decode(encoded, validate=True)
+#     try:
+#         _, encoded = data_url.split(",", 1)
+#         image_bytes = base64.b64decode(encoded, validate=True)
 
-        app.logger.info("STEP 2: Image decoded")
+#         app.logger.info("STEP 2: Image decoded")
 
-        raw_image = preprocess_canvas_image(image_bytes)
+#         raw_image = preprocess_canvas_image(image_bytes)
 
-        app.logger.info("STEP 3: Image preprocessed")
-        app.logger.info("STEP 4: Starting TensorFlow prediction")
+#         app.logger.info("STEP 3: Image preprocessed")
+#         app.logger.info("STEP 4: Starting TensorFlow prediction")
 
-        result = predictor.predict(raw_image)
+#         result = predictor.predict(raw_image)
 
-        app.logger.info("STEP 5: Prediction completed")
+#         app.logger.info("STEP 5: Prediction completed")
 
-        return jsonify(result)
+#         return jsonify(result)
 
-    except ValueError as error:
-        app.logger.exception("Image processing error")
-        return jsonify({"error": str(error)}), 400
+#     except ValueError as error:
+#         app.logger.exception("Image processing error")
+#         return jsonify({"error": str(error)}), 400
 
-    except Exception:
-        app.logger.exception("Prediction failed")
-        return jsonify({"error": "Prediction failed. Check the server log."}), 500
+#     except Exception:
+#         app.logger.exception("Prediction failed")
+#         return jsonify({"error": "Prediction failed. Check the server log."}), 500
 
 
 
